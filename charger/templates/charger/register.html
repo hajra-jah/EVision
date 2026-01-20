@@ -1,0 +1,64 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EVision | Register</title>
+    <style>
+        body { margin: 0; padding: 0; height: 100vh; display: flex; justify-content: center; align-items: center; background: radial-gradient(circle, #234269 0%, #0d121a 100%); font-family: 'Segoe UI', sans-serif; color: white; overflow: hidden; }
+        .register-card { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(15px); padding: 20px 30px; border-radius: 20px; box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5); width: 340px; text-align: center; border: 1px solid rgba(255, 255, 255, 0.1); }
+        .register-card img { width: 80px; margin: 0 auto 10px auto; border-radius: 50%; display: block; }
+        h2 { margin: 0 0 15px 0; color: #00ff88; font-size: 1.4rem; letter-spacing: 2px; }
+        ul, li, .errorlist, .helptext { display: none !important; }
+        form p { text-align: left; margin: 10px 0; font-size: 0.85rem; }
+        input { width: 100%; padding: 10px; margin-top: 4px; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.2); background: rgba(0, 0, 0, 0.3); color: white; box-sizing: border-box; outline: none; }
+        button { width: 100%; padding: 12px; margin-top: 10px; border: none; border-radius: 8px; background: linear-gradient(45deg, #00ff88, #00d1ff); color: #0d121a; font-weight: bold; cursor: pointer; }
+        .footer-text { margin-top: 15px; font-size: 0.85rem; color: #ccc; }
+        .footer-text a { color: #00ff88; text-decoration: none; font-weight: bold; }
+        #notification-container { position: fixed; top: 20px; right: 20px; z-index: 9999; }
+        .toast { min-width: 200px; padding: 12px 20px; margin-bottom: 10px; border-radius: 8px; color: white; font-size: 0.85rem; backdrop-filter: blur(10px); animation: slideIn 0.5s ease forwards; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+        .toast.error { background: rgba(255, 60, 60, 0.95); border-left: 5px solid #ff0000; }
+        .toast.success { background: rgba(0, 255, 136, 0.95); border-left: 5px solid #009955; color: #0d121a; }
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes fadeOut { to { opacity: 0; transform: translateX(20px); } }
+    </style>
+</head>
+<body>
+    <div id="notification-container"></div>
+    <div class="register-card">
+        <img src="{% static 'charger/images/evision_logo.jpeg' %}" alt="Logo">
+        <h2>REGISTER</h2>
+        <form method="post">{% csrf_token %}{{ form.as_p }}<button type="submit">Create Account</button></form>
+        <div class="footer-text">Already have an account? <br><a href="{% url 'login' %}">Login Here</a></div>
+    </div>
+    <script>
+    function showToast(msg, type) {
+        const container = document.getElementById('notification-container');
+        if(!container) return;
+        
+        const toast = document.createElement('div');
+        // Check for error, info, or success
+        let toastClass = 'toast success';
+        if(type.includes('error')) toastClass = 'toast error';
+        if(type.includes('info')) toastClass = 'toast success'; // Info looks green too
+
+        toast.className = toastClass;
+        toast.innerText = msg;
+        container.appendChild(toast);
+        
+        setTimeout(() => {
+            toast.style.animation = "fadeOut 0.5s ease forwards";
+            setTimeout(() => toast.remove(), 500);
+        }, 4000);
+    }
+    
+    {% if messages %}
+    {% for m in messages %}
+    showToast("{{ m|escapejs }}", "{{ m.tags }}");
+    {% endfor %}
+    {% endif %}
+   </script>
+
+</body>
+</html>

@@ -1,0 +1,147 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About | EVision</title>
+    <style>
+        :root { --brand-green: #03AC13; }
+        
+        body { 
+            margin: 0; padding: 0; 
+            background: radial-gradient(circle, #234269 0%, #0d121a 100%); 
+            font-family: 'Segoe UI', sans-serif; color: white; 
+            height: 100vh; 
+            overflow: hidden; 
+            display: flex;
+            flex-direction: column;
+        }
+
+        header { 
+            background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(15px); 
+            padding: 0 50px; display: flex; justify-content: space-between; 
+            align-items: center; border-bottom: 1px solid rgba(255, 255, 255, 0.08); 
+            height: 60px;
+            flex-shrink: 0;
+        }
+
+        .left-nav { display: flex; align-items: center; gap: 30px; }
+        .logo-section { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--brand-green); font-weight: bold; }
+        .logo-section img { width: 30px; border-radius: 50%; }
+        .nav-links { display: flex; gap: 20px; }
+        .nav-link { color: #ccc; font-size: 0.8rem; text-decoration: none; text-transform: uppercase; letter-spacing: 1px; transition: 0.3s; }
+        .nav-link:hover, .nav-link.active { color: var(--brand-green); }
+
+        /* Added Right Nav Styles */
+        .right-nav { display: flex; align-items: center; gap: 25px; }
+        .user-greeting { font-size: 0.85rem; color: #aaa; }
+        .user-greeting b { color: white; }
+        .logout-link { background: none; border: none; color: #ff4d4d; font-size: 0.8rem; cursor: pointer; text-transform: uppercase; padding: 0; font-family: inherit; transition: 0.3s; }
+        .logout-link:hover { color: #ff1a1a; text-shadow: 0 0 5px rgba(255, 77, 77, 0.3); }
+
+        .about-container {
+            flex-grow: 1;
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .about-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(25px);
+            padding: 30px 40px; 
+            border-radius: 25px; 
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            max-width: 850px;
+            width: 100%;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+        }
+
+        h1 { color: var(--brand-green); font-size: 2.2rem; margin: 0 0 15px 0; text-align: center; }
+        p { color: #ccc; line-height: 1.6; font-size: 0.95rem; margin-bottom: 15px; text-align: center; }
+        
+        .features-grid { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 15px; 
+            margin-top: 10px; 
+        }
+
+        .feature-item { 
+            background: rgba(255,255,255,0.03); 
+            padding: 15px; 
+            border-radius: 12px; 
+            border-left: 3px solid var(--brand-green);
+        }
+
+        .feature-item b { color: var(--brand-green); display: block; margin-bottom: 5px; font-size: 1rem; }
+        .feature-item span { font-size: 0.85rem; color: #bbb; line-height: 1.4; display: block; }
+        
+        .footer-note { 
+            text-align: center; 
+            margin-top: 25px; 
+            font-size: 0.8rem; 
+            color: #777; 
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="left-nav">
+            <a href="{% url 'dashboard' %}" class="logo-section">
+                <img src="{% static 'charger/images/evision_logo.jpeg' %}" alt="Logo">
+                <span>EVISION</span>
+            </a>
+            <nav class="nav-links">
+                <a href="{% url 'dashboard' %}" class="nav-link">Home</a>
+                <a href="{% url 'charging' %}" class="nav-link">Charging</a>
+                <a href="{% url 'map_page' %}" class="nav-link">Find Map</a>
+                <a href="{% url 'about' %}" class="nav-link active">About</a>
+            </nav>
+        </div>
+
+        <div class="right-nav">
+            <span class="user-greeting">Hello, {{ user.username }}!</span>
+            <form action="{% url 'logout' %}" method="post" style="display: flex;">
+                {% csrf_token %}
+                <button type="submit" class="logout-link">Logout</button>
+            </form>
+        </div>
+    </header>
+
+    <div class="about-container">
+        <div class="about-card">
+            <h1>Elevating EV Intelligence</h1>
+            <p>
+                <b>EVision</b> is a cutting-edge Electric Vehicle Management Ecosystem designed to bridge the gap between hardware and smart monitoring. Our platform empowers EV owners with real-time telemetry and intelligent charging.
+            </p>
+            
+            <div class="features-grid">
+                <div class="feature-item">
+                    <b>Smart Charging Control</b>
+                    <span>Automate your charging sessions based on budget constraints or specific targets.</span>
+                </div>
+                <div class="feature-item">
+                    <b>Live Telemetry</b>
+                    <span>Monitor critical metrics like SOC, system temperature, and power flow in real-time.</span>
+                </div>
+                <div class="feature-item">
+                    <b>Infrastructure Locator</b>
+                    <span>Integrated mapping technology to find the nearest charging stations with ease.</span>
+                </div>
+                <div class="feature-item">
+                    <b>Energy Optimization</b>
+                    <span>Track consumption patterns to maximize battery health and vehicle longevity.</span>
+                </div>
+            </div>
+
+            <div class="footer-note">
+                Empowering the future of sustainable mobility. <br> 
+                <span style="color: var(--brand-green); font-weight: bold;">Version 1.0.4</span>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

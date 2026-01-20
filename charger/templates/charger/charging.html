@@ -1,0 +1,301 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EVision | Charging Control</title>
+    <style>
+        :root { --brand-green: #03AC13; --error-red: #ff4d4d; }
+
+        body { 
+            margin: 0; padding: 0; 
+            background: radial-gradient(circle, #234269 0%, #0d121a 100%); 
+            font-family: 'Segoe UI', sans-serif; 
+            color: white; 
+            height: 100vh; 
+            overflow: hidden; 
+        }
+        
+        header { 
+            background: rgba(255, 255, 255, 0.03); 
+            backdrop-filter: blur(15px); 
+            padding: 0 50px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08); 
+            height: 70px; 
+            position: relative;
+            z-index: 1000;
+        }
+
+        .left-nav { display: flex; align-items: center; gap: 30px; }
+        .logo-section { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--brand-green); font-weight: bold; }
+        .logo-section img { width: 35px; border-radius: 50%; }
+        .nav-links { display: flex; gap: 20px; }
+        
+        .nav-link { color: #ccc; font-size: 0.8rem; text-decoration: none; text-transform: uppercase; letter-spacing: 1px; transition: 0.3s; border: none !important; }
+        .nav-link.active { color: var(--brand-green); font-weight: bold; border: none !important; }
+        
+        .right-nav { display: flex; align-items: center; gap: 25px; }
+        .user-greeting { font-size: 0.85rem; color: #aaa; }
+        .logout-link { background: none; border: none; color: var(--error-red); font-size: 0.8rem; cursor: pointer; text-transform: uppercase; padding: 0; font-family: inherit; }
+
+        .container { 
+            max-width: 1100px; 
+            margin: 0 auto; 
+            padding: 10px 20px; 
+            height: calc(100vh - 70px);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 12px;
+            box-sizing: border-box;
+        }
+        
+        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; }
+        
+        .stat-card { 
+            background: rgba(255, 255, 255, 0.05); 
+            backdrop-filter: blur(10px); 
+            padding: 15px 10px; 
+            border-radius: 20px; 
+            text-align: center; 
+            border: 1px solid rgba(255, 255, 255, 0.1); 
+            transition: transform 0.3s ease, background 0.3s ease, box-shadow 0.3s ease; 
+            cursor: pointer;
+        }
+        .stat-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+            border-color: var(--brand-green);
+        }
+        
+        .stat-card.critical { border-color: var(--error-red); animation: pulse-red 1.5s infinite; }
+        .stat-card p { margin: 0; color: #aaa; font-size: 0.7rem; letter-spacing: 1.5px; text-transform: uppercase; }
+        .stat-card h2 { margin: 5px 0 0 0; font-size: 2.2rem; color: var(--brand-green); transition: 0.3s; }
+        .stat-card:hover h2 { text-shadow: 0 0 10px rgba(3, 172, 19, 0.5); }
+
+        .glass-panel { 
+            background: rgba(255, 255, 255, 0.03); 
+            padding: 15px 30px; 
+            border-radius: 25px; 
+            border: 1px solid rgba(255, 255, 255, 0.08); 
+        }
+        
+        .panel-title { margin: 0 0 15px 0; text-align:center; color:var(--brand-green); font-size: 1.2rem; letter-spacing: 1px; }
+
+        .control-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .control-box { background: rgba(255, 255, 255, 0.02); padding: 12px; border-radius: 15px; border: 1px solid rgba(255, 255, 255, 0.05); }
+        .control-box label { display: block; margin-bottom: 5px; font-size: 0.65rem; color: var(--brand-green); text-transform: uppercase; font-weight: bold; }
+        
+        .input-wrapper { display: flex; align-items: center; background: rgba(0, 0, 0, 0.3); border-radius: 8px; padding: 6px 12px; border: 1px solid rgba(255, 255, 255, 0.1); }
+        input { background: none; border: none; color: white; width: 100%; outline: none; font-size: 0.95rem; }
+        
+        .btn-action { width: 100%; margin-top: 8px; padding: 8px; background: rgba(3, 172, 19, 0.1); border: 1px solid var(--brand-green); color: var(--brand-green); border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.3s; }
+        .btn-action:hover { background: var(--brand-green); color: white; }
+        
+        .btn-emergency { background: #cc0000; color: white; border: none; padding: 12px; border-radius: 12px; width: 100%; font-weight: bold; cursor: pointer; margin-top: 12px; text-transform: uppercase; font-size: 0.9rem; transition: 0.3s; }
+        .btn-emergency:hover { background: #ff0000; box-shadow: 0 0 15px rgba(255, 0, 0, 0.4); }
+        
+        .btn-resume { background: var(--brand-green); color: white; border: none; padding: 12px; border-radius: 12px; width: 100%; font-weight: bold; cursor: pointer; margin-top: 12px; text-transform: uppercase; font-size: 0.9rem; }
+        .btn-alarm-stop { background: #ffcc00; color: #000; border: none; padding: 12px; border-radius: 12px; width: 100%; font-weight: bold; cursor: pointer; margin-top: 12px; text-transform: uppercase; animation: flash 0.5s infinite; font-size: 0.9rem; }
+
+        @keyframes pulse-red { 0% { box-shadow: 0 0 0 0 rgba(255, 77, 77, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(255, 77, 77, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 77, 77, 0); } }
+        @keyframes flash { 50% { background: #ff4444; color: white; } }
+
+        #notification-container { position: fixed; top: 15px; right: 15px; z-index: 9999; }
+        .toast { min-width: 200px; padding: 10px 15px; margin-bottom: 8px; border-radius: 10px; color: white; font-weight: 600; font-size: 0.8rem; animation: slideIn 0.4s ease forwards; }
+        .toast.error { background: rgba(255, 50, 50, 0.9); border-left: 5px solid #ff0000; }
+        .toast.success { background: rgba(0, 200, 100, 0.9); border-left: 5px solid #006633; }
+        @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
+    </style>
+</head>
+<body>
+    <audio id="alarmSound" loop preload="auto">
+        <source src="https://assets.mixkit.co/active_storage/sfx/951/951-preview.mp3" type="audio/mpeg">
+    </audio>
+
+    <div id="notification-container"></div>
+    
+    <header>
+        <div class="left-nav">
+            <a href="{% url 'dashboard' %}" class="logo-section">
+                <img src="{% static 'charger/images/evision_logo.jpeg' %}" alt="Logo">
+                <span>EVISION</span>
+            </a>
+            <nav class="nav-links">
+                <a href="{% url 'dashboard' %}" class="nav-link">Home</a>
+                <a href="{% url 'charging' %}" class="nav-link active">Charging</a>
+                <a href="{% url 'map_page' %}" class="nav-link">Find Map</a>
+                <a href="{% url 'about' %}" class="nav-link">About</a>
+            </nav>
+        </div>
+        <div class="right-nav">
+            <span class="user-greeting">Hello, <b>{{ user.username }}</b>!</span>
+            <form action="{% url 'logout' %}" method="post" style="display:flex;">
+                {% csrf_token %}
+                <button type="submit" class="logout-link">Logout</button>
+            </form>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="stats-grid">
+            <div class="stat-card">
+                <p>Battery SOC</p>
+                <h2 id="socDisplay">20%</h2>
+            </div>
+            <div id="temp-card" class="stat-card">
+                <p>System Temp</p>
+                <h2 id="tempDisplay">35.0°C</h2>
+            </div>
+            <div class="stat-card">
+                <p>Current Bill</p>
+                <h2 id="billDisplay">Rs. 0</h2>
+            </div>
+        </div>
+
+        <div class="glass-panel">
+            <h2 class="panel-title">Charging Command Center</h2>
+            
+            <div class="control-grid">
+                <div class="control-box">
+                    <label>Budget Control</label>
+                    <div class="input-wrapper">
+                        <input type="number" id="priceInput" placeholder="Amount">
+                        <span style="color:var(--brand-green); font-size:0.7rem; font-weight:bold;">PKR</span>
+                    </div>
+                    <button class="btn-action" onclick="setCharge('price')">Set Budget</button>
+                </div>
+                <div class="control-box">
+                    <label>Capacity Control</label>
+                    <div class="input-wrapper">
+                        <input type="number" id="percentInput" placeholder="Target">
+                        <span style="color:var(--brand-green); font-size:0.7rem; font-weight:bold;">%</span>
+                    </div>
+                    <button class="btn-action" onclick="setCharge('percent')">Set Percent</button>
+                </div>
+            </div>
+
+            <div id="main-action-area">
+                <button id="toggleBtn" class="btn-emergency" onclick="stopCharging()">Emergency Disconnect</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentSoc = 20; 
+        let currentTemp = 35.0; 
+        let interval;
+        let cooldownInterval; // ADDED: Variable for cooling
+        let globalTarget = 0;
+        const alarm = document.getElementById('alarmSound');
+
+        function playAlarm() { alarm.play().catch(e => console.log("Sound play error")); }
+
+        function showToast(msg, type) {
+            const container = document.getElementById('notification-container');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type === 'success' ? 'success' : 'error'}`;
+            toast.innerText = msg;
+            container.appendChild(toast);
+            setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 500); }, 3000);
+        }
+
+        function setCharge(mode) {
+            if(currentTemp >= 40) { showToast("Cannot start: System overheated!", "error"); return; }
+            let val = mode === 'price' ? document.getElementById('priceInput').value : document.getElementById('percentInput').value;
+            if(!val || val <= 0) { showToast("Enter a valid value", "error"); return; }
+            
+            clearInterval(cooldownInterval); // ADDED: Stop cooling when starting
+            fetch('/calculate/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-CSRFToken': '{{ csrf_token }}' },
+                body: `mode=${mode}&value=${val}`
+            }).then(r => r.json()).then(data => {
+                globalTarget = data.target;
+                updateButtonArea('emergency');
+                showToast(`Target set to ${globalTarget}%`, "success");
+                startSimulation();
+            });
+        }
+
+        function startSimulation() {
+            clearInterval(interval);
+            interval = setInterval(() => {
+                if(currentSoc < globalTarget) {
+                    currentSoc++; 
+                    currentTemp += 0.5; 
+                    document.getElementById('socDisplay').innerText = currentSoc + "%";
+                    document.getElementById('tempDisplay').innerText = currentTemp.toFixed(1) + "°C";
+                    document.getElementById('billDisplay').innerText = "Rs. " + ((currentSoc-20)*50);
+                    if(currentTemp >= 40) { handleHighTemp(); }
+                } else {
+                    clearInterval(interval);
+                    showToast("Charging Complete!", "success");
+                    startCooldown(); // ADDED: Start cooling when finished
+                }
+            }, 3000);
+        }
+
+        function handleHighTemp() {
+            clearInterval(interval);
+            playAlarm();
+            document.getElementById('temp-card').classList.add('critical');
+            updateButtonArea('alarm');
+            showToast("ALARM: Temperature 40°C!", "error");
+            startCooldown(); // ADDED: Start cooling when alarm triggers
+        }
+
+        function startCooldown() {
+            clearInterval(cooldownInterval); 
+            cooldownInterval = setInterval(() => {
+                if (currentTemp > 35.0) {
+                    currentTemp -= 0.5; 
+                    document.getElementById('tempDisplay').innerText = currentTemp.toFixed(1) + "°C";
+                    if (currentTemp < 40.0) {
+                        document.getElementById('temp-card').classList.remove('critical');
+                    }
+                } else {
+                    clearInterval(cooldownInterval);
+                }
+            }, 5000);
+        }
+
+        function stopAlarm() {
+            alarm.pause();
+            alarm.currentTime = 0;
+            updateButtonArea('resume');
+            showToast("Alarm stopped. System cooling...", "success");
+        }
+
+        function stopCharging() { 
+            clearInterval(interval); 
+            updateButtonArea('resume');
+            showToast("Charging paused.", "error"); 
+            startCooldown(); // ADDED: Start cooling when paused
+        }
+        
+        function resumeCharging() {
+            if(currentTemp >= 40) { showToast("System too hot to resume!", "error"); return; }
+            clearInterval(cooldownInterval); // ADDED: Stop cooling when resuming
+            updateButtonArea('emergency');
+            startSimulation();
+        }
+
+        function updateButtonArea(state) {
+            const area = document.getElementById('main-action-area');
+            if(state === 'emergency') {
+                area.innerHTML = `<button class="btn-emergency" onclick="stopCharging()">Emergency Disconnect</button>`;
+            } else if(state === 'resume') {
+                area.innerHTML = `<button class="btn-resume" onclick="resumeCharging()">Resume Charging</button>`;
+            } else if(state === 'alarm') {
+                area.innerHTML = `<button class="btn-alarm-stop" onclick="stopAlarm()">STOP ALARM</button>`;
+            }
+        }
+    </script>
+</body>
+</html>
