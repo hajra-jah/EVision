@@ -12,4 +12,6 @@ urlpatterns = [
     path('register/', views.register_view, name='register'),
     path('login/', views.login_view, name='login'),
     path('logout/', views.logout_view, name='logout'),
+    path('api/set-charging/', views.set_charging_state, name='set-charging'),
+    path('api/charger-data/', views.get_charger_data, name='charger-data'),
 ]

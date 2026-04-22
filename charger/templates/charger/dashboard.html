@@ -8,14 +8,13 @@
     <style>
         :root { --brand-green: #03AC13; }
 
-        /* Scrollbar hide karkay pure page ko screen fit kiya */
         body { 
             margin: 0; padding: 0; 
             background: radial-gradient(circle, #234269 0%, #0d121a 100%); 
             font-family: 'Segoe UI', sans-serif; 
             color: white; 
-            height: 100vh; 
-            overflow: hidden; /* Scrollbar khatam */
+            min-height: 100vh; 
+            overflow-x: hidden; 
         }
         
         header { 
@@ -38,54 +37,46 @@
         
         .right-nav { display: flex; align-items: center; gap: 20px; }
         .user-greeting { font-size: 0.85rem; color: #aaa; }
-        .user-greeting b { color: white; }
         .logout-link { background: none; border: none; color: #ff4d4d; font-size: 0.8rem; cursor: pointer; text-transform: uppercase; padding: 0; font-family: inherit; transition: 0.3s; }
 
-        /* Container adjustment to fit screen */
         .dashboard-container { 
-            max-width: 1200px; 
-            margin: 20px auto; 
-            padding: 0 20px; 
+            max-width: 900px; 
+            margin: 40px auto; 
+            padding: 0 20px 60px 20px; /* Bottom padding for breathing space */
             text-align: center; 
-            height: calc(100vh - 100px);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
         }
 
-        .welcome-msg h1 { font-size: 2.2rem; margin: 0 0 20px 0; color: var(--brand-green); letter-spacing: 1px; }
+        .welcome-msg h1 { font-size: 1.8rem; margin-bottom: 30px; color: var(--brand-green); letter-spacing: 1px; }
         
-        /* Fixed 3-column Grid for symmetry */
         .stats-grid { 
             display: grid; 
-            grid-template-columns: repeat(3, 1fr); /* Hamesha 3 columns rahen gay */
+            grid-template-columns: repeat(2, 1fr); 
             gap: 20px; 
         }
         
         .stat-card { 
             background: rgba(255, 255, 255, 0.04); 
             backdrop-filter: blur(12px); 
-            padding: 25px 15px; 
+            padding: 25px 15px; /* Reduced padding for smaller cards */
             border-radius: 20px; 
             border: 1px solid rgba(255, 255, 255, 0.08); 
-            transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+            transition: 0.4s; 
         }
 
         .stat-card:hover { 
             transform: translateY(-5px); 
             border-color: var(--brand-green); 
             background: rgba(255, 255, 255, 0.07);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.4);
         }
 
-        .stat-card p { margin: 0; color: #aaa; letter-spacing: 1.5px; font-size: 0.75rem; text-transform: uppercase; }
-        .stat-card h2 { margin: 10px 0 0 0; font-size: 2.5rem; color: var(--brand-green); font-weight: 600; }
+        .stat-card p { margin: 0; color: #aaa; letter-spacing: 1.5px; font-size: 0.7rem; text-transform: uppercase; }
+        .stat-card h2 { margin: 10px 0 0 0; font-size: 2.2rem; color: var(--brand-green); font-weight: 600; }
         .unit { font-size: 0.9rem; color: #aaa; margin-left: 4px; }
+        
+        /* Toast Notification Styles */
         .toast { min-width: 200px; padding: 12px 20px; margin-bottom: 10px; border-radius: 8px; color: white; font-size: 0.85rem; backdrop-filter: blur(10px); box-shadow: 0 5px 15px rgba(0,0,0,0.3); animation: slideIn 0.5s ease forwards; }
         .toast.success { background: rgba(0, 255, 136, 0.95); border-left: 5px solid #009955; color: #0d121a; }
-        .toast.error { background: rgba(255, 60, 60, 0.95); border-left: 5px solid #ff0000; }
         @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-        @keyframes fadeOut { to { opacity: 0; transform: translateX(20px); } }
     </style>
 </head>
 <body>
@@ -99,7 +90,7 @@
         <nav class="nav-links">
             <a href="{% url 'dashboard' %}" class="nav-link active">Home</a>
             <a href="{% url 'charging' %}" class="nav-link">Charging</a>
-            <a href="https://www.google.com/maps/search/ev+charging+stations+near+me/" target="_blank" class="nav-link">Find Map</a>
+            <a href="{% url 'map_page' %}" class="nav-link">Find Map</a>
             <a href="{% url 'about' %}" class="nav-link">About</a>
         </nav>
     </div>
@@ -121,56 +112,55 @@
 
     <div class="stats-grid">
         <div class="stat-card">
-            <p>Battery SOC</p>
-            <h2>20<span class="unit">%</span></h2>
+            <p>Charging State</p>
+            <h2 id="charging-state">OFF</h2>
         </div>
-
         <div class="stat-card">
-            <p>System Temp</p>
+            <p>Battery Temp</p>
             <h2>35<span class="unit">°C</span></h2>
         </div>
-
-        <div class="stat-card">
-            <p>Est. Range</p>
-            <h2>245<span class="unit">km</span></h2>
-        </div>
-
         <div class="stat-card">
             <p>Power Flow</p>
             <h2>4.2<span class="unit">kW</span></h2>
         </div>
-
         <div class="stat-card">
             <p>Energy Used</p>
             <h2>12.8<span class="unit">kWh</span></h2>
         </div>
-
-        <div class="stat-card">
-            <p>Battery Health</p>
-            <h2>98<span class="unit">%</span></h2>
-        </div>
     </div>
 </div>
-
 <script>
-    function showToast(msg, type) {
-        const container = document.getElementById('notification-container');
-        const toast = document.createElement('div');
-        toast.className = `toast ${type.includes('error') ? 'error' : 'success'}`;
-        toast.innerText = msg;
-        container.appendChild(toast);
-        setTimeout(() => {
-            toast.style.animation = "fadeOut 0.5s ease forwards";
-            setTimeout(() => toast.remove(), 500);
-        }, 4000);
-    }
+function fetchLiveData() {
+  fetch('/api/charger-data/')
+    .then(res => res.json())
+    .then(data => {
 
-    {% if messages %}
-    {% for m in messages %}
-    showToast("{{ m|escapejs }}", "{{ m.tags }}");
-    {% endfor %}
-    {% endif %}
+      // Power Flow card
+      document.querySelector('.stats-grid .stat-card:nth-child(3) h2').innerHTML =
+        data.power_kw + '<span class="unit">kW</span>';
+
+      // Energy Used card
+      document.querySelector('.stats-grid .stat-card:nth-child(4) h2').innerHTML =
+        data.energy_used + '<span class="unit">kWh</span>';
+
+      // Temperature card
+      document.querySelector('.stats-grid .stat-card:nth-child(2) h2').innerHTML =
+        data.temperature + '<span class="unit">°C</span>';
+
+      // Charging State
+      const stateEl = document.getElementById('charging-state');
+      if (data.charging_state) {
+        stateEl.textContent = 'ON';
+        
+      } else {
+        stateEl.textContent = 'OFF';
+      }
+    })
+    .catch(err => console.error('Firebase fetch error:', err));
+}
+
+setInterval(fetchLiveData, 3000);
+fetchLiveData();
 </script>
-
 </body>
 </html>

@@ -2,8 +2,12 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth import login, logout, authenticate
 from django.contrib import messages
+from firebase_admin import db
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.csrf import csrf_exempt
+import json
+
 
 def index(request):
     if request.user.is_authenticated:
@@ -94,5 +98,28 @@ def calculate_charge(request):
             'cost': total_cost,
             'current': current_soc
         })
+    
+@csrf_exempt
+def set_charging_state(request):
+    if request.method == 'POST':
+        body = json.loads(request.body)
+        state = body.get('charging_state', False)
+        ref = db.reference('/charger/charging_state')
+        ref.set(state)
+        return JsonResponse({'success': True, 'charging_state': state})
+    return JsonResponse({'error': 'POST required'}, status=400)
+
+def get_charger_data(request):
+    ref = db.reference('/charger')
+    data = ref.get()
+    if data is None:
+        data = {
+            'power_kw': 0,
+            'energy_used': 0,
+            'charging_state': False,
+            'temperature': 0,
+            'voltage': 0   
+        }
+    return JsonResponse(data)
 
 

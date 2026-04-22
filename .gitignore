@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+db.sqlite3
+venv/
+env/
+evision-62530-firebase-adminsdk-fbsvc-8dba2480df.json

@@ -9,11 +9,18 @@ https://docs.djangoproject.com/en/5.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
-
+import firebase_admin
+from firebase_admin import credentials, db
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+cred = credentials.Certificate(BASE_DIR / 'evision-62530-firebase-adminsdk-fbsvc-8dba2480df.json')
+
+firebase_admin.initialize_app(cred, {
+    'databaseURL': 'https://evision-62530-default-rtdb.firebaseio.com/'
+})
 
 
 # Quick-start development settings - unsuitable for production
